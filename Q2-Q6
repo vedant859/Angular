@@ -1,0 +1,283 @@
+Question 2 — Display student records using a service and Dependency Injection
+Step 1: Create the service
+Run this command in the VS Code terminal:
+ng generate service student
+
+
+File 1: src/app/student.ts
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class StudentService {
+  students = [
+    { name: 'Amit', roll: 1 },
+    { name: 'Riya', roll: 2 },
+    { name: 'Rahul', roll: 3 }
+  ];
+}
+
+
+
+File 2: src/app/app.ts
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { StudentService } from './student';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './app.html'
+})
+export class App {
+  constructor(public service: StudentService) {}
+}
+
+
+
+File 3: src/app/app.html
+<h1>Student Records</h1>
+
+<div *ngFor="let student of service.students">
+  <p>Name: {{ student.name }}</p>
+  <p>Roll Number: {{ student.roll }}</p>
+  <hr>
+</div>
+
+
+
+Output: Three student records appear on the webpage.
+
+Question 3 — Send data from child to parent using @Output()
+Step 1: Create the child component
+ng generate component child
+
+
+File 1: src/app/child/child.ts
+import { Component, Output, EventEmitter } from '@angular/core';
+
+@Component({
+  selector: 'app-child',
+  standalone: true,
+  templateUrl: './child.html'
+})
+export class Child {
+  @Output() selected = new EventEmitter<string>();
+
+  selectStudent() {
+    this.selected.emit('Amit');
+  }
+}
+
+
+
+File 2: src/app/child/child.html
+<h2>Child Component</h2>
+
+<button (click)="selectStudent()">
+  Select Amit
+</button>
+
+
+
+File 3: src/app/app.ts
+import { Component } from '@angular/core';
+import { Child } from './child/child';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [Child],
+  templateUrl: './app.html'
+})
+export class App {
+  name = '';
+
+  receiveName(value: string) {
+    this.name = value;
+  }
+}
+
+
+
+File 4: src/app/app.html
+<h1>Parent Component</h1>
+
+<app-child
+  (selected)="receiveName($event)">
+</app-child>
+
+<p>Selected Student: {{ name }}</p>
+
+
+
+Output: Click Select Amit and the parent displays Selected Student: Amit.
+
+Question 4 — Store and display student details using a service
+File 1: src/app/student.ts
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class StudentService {
+  student = {
+    name: 'Amit',
+    roll: 1,
+    course: 'BCA'
+  };
+}
+
+
+
+File 2: src/app/app.ts
+import { Component } from '@angular/core';
+import { StudentService } from './student';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [],
+  templateUrl: './app.html'
+})
+export class App {
+  constructor(public service: StudentService) {}
+}
+
+
+
+File 3: src/app/app.html
+<h1>Student Details</h1>
+
+<p>Name: {{ service.student.name }}</p>
+<p>Roll Number: {{ service.student.roll }}</p>
+<p>Course: {{ service.student.course }}</p>
+
+
+
+Output: Amit, roll number 1, BCA.
+
+Question 5 — Pass student details using @Input() and interpolation
+Step 1: Create the child component
+ng generate component child
+
+
+File 1: src/app/child/child.ts
+import { Component, Input } from '@angular/core';
+
+@Component({
+  selector: 'app-child',
+  standalone: true,
+  templateUrl: './child.html'
+})
+export class Child {
+  @Input() name = '';
+  @Input() roll = 0;
+  @Input() course = '';
+}
+
+
+
+File 2: src/app/child/child.html
+<h2>Student Details</h2>
+
+<p>Name: {{ name }}</p>
+<p>Roll Number: {{ roll }}</p>
+<p>Course: {{ course }}</p>
+
+
+
+File 3: src/app/app.ts
+import { Component } from '@angular/core';
+import { Child } from './child/child';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [Child],
+  templateUrl: './app.html'
+})
+export class App {
+  name = 'Amit';
+  roll = 1;
+  course = 'BCA';
+}
+
+
+
+File 4: src/app/app.html
+<h1>Parent Component</h1>
+
+<app-child
+  [name]="name"
+  [roll]="roll"
+  [course]="course">
+</app-child>
+
+
+
+Output: The child component displays all three values received from the parent.
+
+Question 6 — Calculate total marks and percentage using data binding
+This question uses [(ngModel)], so we must import FormsModule.
+File 1: src/app/app.ts
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [FormsModule],
+  templateUrl: './app.html'
+})
+export class App {
+  m1 = 0;
+  m2 = 0;
+  m3 = 0;
+  total = 0;
+  percentage = 0;
+
+  calculate() {
+    this.total =
+      Number(this.m1) +
+      Number(this.m2) +
+      Number(this.m3);
+
+    this.percentage = (this.total / 300) * 100;
+  }
+}
+
+
+
+File 2: src/app/app.html
+<h1>Student Marks Calculator</h1>
+
+<label>Subject 1:</label>
+<input type="number" [(ngModel)]="m1">
+<br><br>
+
+<label>Subject 2:</label>
+<input type="number" [(ngModel)]="m2">
+<br><br>
+
+<label>Subject 3:</label>
+<input type="number" [(ngModel)]="m3">
+<br><br>
+
+<button (click)="calculate()">Calculate</button>
+
+<h3>Total Marks: {{ total }} / 300</h3>
+<h3>Percentage: {{ percentage }}%</h3>
+
+
+
+Output example: If you enter 80, 70 and 90, the total is 240 and the percentage is 80%.
+
+How to run each question
+1. Save your files using Ctrl + S.
+2. Open Terminal → New Terminal in VS Code.
+3. Run:
+   ng serve --open
+4. Keep the terminal open and view the result in your browser.
