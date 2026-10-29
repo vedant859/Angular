@@ -1,0 +1,325 @@
+Question 7 — Display student records using *ngFor
+File: src/app/app.ts
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './app.html'
+})
+export class App {
+  students = [
+    { id: 1, name: 'Amit', course: 'BCA' },
+    { id: 2, name: 'Riya', course: 'BSc' },
+    { id: 3, name: 'Rahul', course: 'BCA' }
+  ];
+}
+
+
+
+File: src/app/app.html
+<h1>Student Records</h1>
+
+<table border="1" cellpadding="8">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Course</th>
+  </tr>
+
+  <tr *ngFor="let s of students">
+    <td>{{ s.id }}</td>
+    <td>{{ s.name }}</td>
+    <td>{{ s.course }}</td>
+  </tr>
+</table>
+
+
+
+Concept: *ngFor repeats the HTML row for every student in the array.
+Question 8 — Display grades using ngSwitch
+File: src/app/app.ts
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './app.html'
+})
+export class App {
+  grade = 'A';
+}
+
+
+
+File: src/app/app.html
+<h1>Grade Result</h1>
+
+<div [ngSwitch]="grade">
+  <p *ngSwitchCase="'A'">Excellent</p>
+  <p *ngSwitchCase="'B'">Very Good</p>
+  <p *ngSwitchCase="'C'">Good</p>
+  <p *ngSwitchCase="'D'">Pass</p>
+  <p *ngSwitchDefault>Invalid Grade</p>
+</div>
+
+
+
+Output: Excellent, because grade = 'A'.
+Question 9 — Display a message using a component
+First create a component:
+ng generate component receiver
+
+
+
+File: src/app/receiver/receiver.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-receiver',
+  standalone: true,
+  templateUrl: './receiver.html'
+})
+export class Receiver {
+  message = 'Hello from Receiver Component!';
+}
+
+
+
+File: src/app/receiver/receiver.html
+<h2>{{ message }}</h2>
+
+
+
+File: src/app/app.ts
+import { Component } from '@angular/core';
+import { Receiver } from './receiver/receiver';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [Receiver],
+  templateUrl: './app.html'
+})
+export class App {}
+
+
+
+File: src/app/app.html
+<h1>Parent Application</h1>
+
+<app-receiver></app-receiver>
+
+
+
+Concept: The parent displays the receiver component using its selector, <app-receiver>.
+
+One important correction: I checked your actual question-bank PDF. Questions 7–9 in my previous reply didn't match the exact questions in your PDF. Sorry about that. The correct topics are products with categories and a custom directive, a counter service, and student details using a service. I'll keep the remaining answers aligned with your PDF.
+Question 10 — CRUD operations using a REST API
+CRUD means Create, Read, Update and Delete. This example uses JSONPlaceholder as a demonstration API; its changes are not permanently saved on the server.
+Step 1: Create the service
+ng generate service student
+
+
+File 1: src/app/student.service.ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class StudentService {
+  url = 'https://jsonplaceholder.typicode.com/users';
+
+  constructor(private http: HttpClient) {}
+
+  getStudents() {
+    return this.http.get<any[]>(this.url);
+  }
+
+  addStudent(student: any) {
+    return this.http.post(this.url, student);
+  }
+
+  updateStudent(student: any) {
+    return this.http.put(
+      this.url + '/' + student.id,
+      student
+    );
+  }
+
+  deleteStudent(id: number) {
+    return this.http.delete(this.url + '/' + id);
+  }
+}
+
+
+Step 2: Enable HTTP
+File 2: src/app/app.config.ts
+
+Add provideHttpClient() to the providers. If your file already has other providers, keep them.
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient()
+  ]
+};
+
+
+Step 3: Component code
+File 3: src/app/app.ts
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { StudentService } from './student.service';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './app.html'
+})
+export class App implements OnInit {
+  students: any[] = [];
+
+  student: any = {
+    name: '',
+    email: ''
+  };
+
+  constructor(private service: StudentService) {}
+
+  ngOnInit() {
+    this.loadStudents();
+  }
+
+  loadStudents() {
+    this.service.getStudents().subscribe(data => {
+      this.students = data;
+    });
+  }
+
+  addStudent() {
+    this.service.addStudent(this.student).subscribe(() => {
+      alert('Student added successfully');
+      this.student = { name: '', email: '' };
+    });
+  }
+
+  updateStudent(s: any) {
+    const updated = {
+      ...s,
+      name: s.name + ' Updated'
+    };
+
+    this.service.updateStudent(updated).subscribe(() => {
+      alert('Student updated successfully');
+    });
+  }
+
+  deleteStudent(id: number) {
+    this.service.deleteStudent(id).subscribe(() => {
+      this.students = this.students.filter(s => s.id !== id);
+    });
+  }
+}
+
+
+Step 4: HTML code
+File 4: src/app/app.html
+<h1>Student CRUD Application</h1>
+
+<h3>Add Student</h3>
+
+<input
+  type="text"
+  placeholder="Enter name"
+  [(ngModel)]="student.name">
+
+<input
+  type="email"
+  placeholder="Enter email"
+  [(ngModel)]="student.email">
+
+<button (click)="addStudent()">Add Student</button>
+
+<hr>
+
+<h3>Student Records</h3>
+
+<button (click)="loadStudents()">Load Students</button>
+
+<table border="1" cellpadding="8">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Actions</th>
+  </tr>
+
+  <tr *ngFor="let s of students">
+    <td>{{ s.id }}</td>
+    <td>{{ s.name }}</td>
+    <td>{{ s.email }}</td>
+    <td>
+      <button (click)="updateStudent(s)">Update</button>
+      <button (click)="deleteStudent(s.id)">Delete</button>
+    </td>
+  </tr>
+</table>
+
+
+Remember: GET reads records, POST adds a record, PUT updates a record, and DELETE removes a record. In this demonstration, only the displayed list is updated locally after deletion.
+
+Question 11 — Create a service that returns a message
+Step 1: Generate the service
+ng generate service message
+
+
+File 1: src/app/message.service.ts
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MessageService {
+  getMessage() {
+    return 'Hello Angular!';
+  }
+}
+
+
+Step 2: Component code
+File 2: src/app/app.ts
+import { Component } from '@angular/core';
+import { MessageService } from './message.service';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [],
+  templateUrl: './app.html'
+})
+export class App {
+  message: string;
+
+  constructor(service: MessageService) {
+    this.message = service.getMessage();
+  }
+}
+
+
+Step 3: HTML code
+File 3: src/app/app.html
+<h1>Angular Service Example</h1>
+
+<p>{{ message }}</p>
+
+
+Output: Hello Angular!
