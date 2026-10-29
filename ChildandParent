@@ -1,0 +1,72 @@
+Step 1: Create the child component
+In the VS Code terminal, run:
+ng generate component child
+
+
+This creates a separate folder for the child component.
+Step 2: Write the code in each file
+Your project might use either newer filenames (app.ts) or older filenames (app.component.ts). I'll show the code for the newer format first.
+File 1: src/app/child/child.ts
+
+Copy the entire code into this file:
+import { Component, Input } from '@angular/core';
+
+@Component({
+  selector: 'app-child',
+  standalone: true,
+  templateUrl: './child.html'
+})
+export class Child {
+  @Input() student = {
+    name: '',
+    roll: 0,
+    course: ''
+  };
+}
+
+
+ Copy TypeScript code
+File 2: src/app/child/child.html
+
+Copy the entire code into this file:
+<h2>Student Details</h2>
+<p>Name: {{ student.name }}</p>
+<p>Roll No: {{ student.roll }}</p>
+<p>Course: {{ student.course }}</p>
+
+
+ Copy HTML code
+File 3: src/app/app.ts
+
+Copy the entire code into this file:
+import { Component } from '@angular/core';
+import { Child } from './child/child';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [Child],
+  templateUrl: './app.html'
+})
+export class App {
+  student = {
+    name: 'Vedant',
+    roll: 101,
+    course: 'Computer Science'
+  };
+}
+
+
+ Copy TypeScript code
+File 4: src/app/app.html
+
+Copy the entire code into this file:
+<h1>Parent Component</h1>
+
+<app-child [student]="student"></app-child>
+
+
+ Copy HTML code
+Step 3: Run the program
+Open the VS Code terminal and run:
+ng serve --open
