@@ -1,0 +1,309 @@
+Question 12 — Lazy loading the Student component using Angular routing
+Lazy loading loads the Student component only when the user visits the Student route.
+Step 1: Generate the component
+Run:
+ng generate component student
+
+
+Step 2: Create the routes
+File 1: src/app/app.routes.ts
+import { Routes } from '@angular/router';
+
+export const routes: Routes = [
+  {
+    path: 'student',
+    loadComponent: () =>
+      import('./student/student').then(m => m.Student)
+  },
+  {
+    path: '',
+    redirectTo: 'student',
+    pathMatch: 'full'
+  }
+];
+
+
+Step 3: Student component
+File 2: src/app/student/student.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-student',
+  standalone: true,
+  imports: [],
+  templateUrl: './student.html'
+})
+export class Student {
+  message = 'Student component loaded using lazy loading';
+}
+
+
+File 3: src/app/student/student.html
+<h1>Student Page</h1>
+
+<p>{{ message }}</p>
+
+
+Step 4: Configure routing
+File 4: src/app/app.config.ts
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes)
+  ]
+};
+
+
+Step 5: Display the routed component
+File 5: src/app/app.ts
+import { Component } from '@angular/core';
+import { RouterOutlet, RouterLink } from '@angular/router';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet, RouterLink],
+  templateUrl: './app.html'
+})
+export class App {}
+
+
+File 6: src/app/app.html
+<h1>Lazy Loading Example</h1>
+
+<a routerLink="/student">Open Student Page</a>
+
+<hr>
+
+<router-outlet></router-outlet>
+
+
+Output: Click Open Student Page to load the Student page.
+
+Note: If your project already has app.config.ts or app.routes.ts, update the existing files instead of replacing unrelated configuration.
+
+Question 13 — Display result messages using ngSwitch
+Display Distinction, First Class, Pass, or Fail according to the student's grade.
+
+File 1: src/app/app.ts
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './app.html'
+})
+export class App {
+  grade = 'A';
+}
+
+
+File 2: src/app/app.html
+<h1>Student Result</h1>
+
+<p>Grade: {{ grade }}</p>
+
+<div [ngSwitch]="grade">
+  <p *ngSwitchCase="'A'">Distinction</p>
+  <p *ngSwitchCase="'B'">First Class</p>
+  <p *ngSwitchCase="'C'">Pass</p>
+  <p *ngSwitchCase="'D'">Pass</p>
+  <p *ngSwitchDefault>Fail</p>
+</div>
+
+
+Output: Grade A displays Distinction.
+
+To test other results, change grade = 'A' in app.ts to 'B', 'C', 'D', or 'F'.
+
+Question 14 — Pass student ID and course name through multiple route parameters
+The URL will contain both the student ID and course name, for example /student/101/BCA.
+Step 1: Create the Student component
+Run:
+ng generate component student
+
+
+Step 2: Define the route
+File 1: src/app/app.routes.ts
+import { Routes } from '@angular/router';
+import { Student } from './student/student';
+
+export const routes: Routes = [
+  {
+    path: 'student/:id/:course',
+    component: Student
+  }
+];
+
+
+Step 3: Read the route parameters
+File 2: src/app/student/student.ts
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+
+@Component({
+  selector: 'app-student',
+  standalone: true,
+  imports: [],
+  templateUrl: './student.html'
+})
+export class Student implements OnInit {
+  id = '';
+  course = '';
+
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit() {
+    this.id = this.route.snapshot.paramMap.get('id') || '';
+    this.course = this.route.snapshot.paramMap.get('course') || '';
+  }
+}
+
+
+File 3: src/app/student/student.html
+<h1>Student Details</h1>
+
+<p>Student ID: {{ id }}</p>
+<p>Course: {{ course }}</p>
+
+
+Step 4: Configure routing
+File 4: src/app/app.config.ts
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes)
+  ]
+};
+
+
+File 5: src/app/app.ts
+import { Component } from '@angular/core';
+import { RouterOutlet, RouterLink } from '@angular/router';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet, RouterLink],
+  templateUrl: './app.html'
+})
+export class App {}
+
+
+File 6: src/app/app.html
+<h1>Multiple Route Parameters</h1>
+
+<a routerLink="/student/101/BCA">
+  View Student
+</a>
+
+<router-outlet></router-outlet>
+
+
+Output: Clicking View Student displays student ID 101 and course BCA.
+
+Question 15 — Navigate between components using routerLink
+This example creates Home and About components and allows navigation without manually changing the URL.
+Step 1: Generate both components
+Run these commands:
+ng generate component home
+ng generate component about
+
+
+Step 2: Home component
+File 1: src/app/home/home.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  imports: [],
+  templateUrl: './home.html'
+})
+export class Home {}
+
+
+File 2: src/app/home/home.html
+<h2>Home Page</h2>
+
+<p>Welcome to the Home Page.</p>
+
+
+Step 3: About component
+File 3: src/app/about/about.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-about',
+  standalone: true,
+  imports: [],
+  templateUrl: './about.html'
+})
+export class About {}
+
+
+File 4: src/app/about/about.html
+<h2>About Page</h2>
+
+<p>This is the About Page.</p>
+
+
+Step 4: Configure the routes
+File 5: src/app/app.routes.ts
+import { Routes } from '@angular/router';
+import { Home } from './home/home';
+import { About } from './about/about';
+
+export const routes: Routes = [
+  { path: 'home', component: Home },
+  { path: 'about', component: About },
+  { path: '', redirectTo: 'home', pathMatch: 'full' }
+];
+
+
+File 6: src/app/app.config.ts
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes)
+  ]
+};
+
+
+File 7: src/app/app.ts
+import { Component } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterLink, RouterOutlet],
+  templateUrl: './app.html'
+})
+export class App {}
+
+
+File 8: src/app/app.html
+<h1>Angular Routing Example</h1>
+
+<a routerLink="/home">Home</a>
+&nbsp; | &nbsp;
+<a routerLink="/about">About</a>
+
+<hr>
+
+<router-outlet></router-outlet>
+
+
+Output: Click Home or About to display the selected component.
